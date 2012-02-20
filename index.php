@@ -1,32 +1,17 @@
 <?php
+require 'thrive/Thrive.php';
 require 'WebPageConsolidator.inc.php';
+
+Thrive::init();
 
 // Command line stuff here
 if (php_sapi_name() == 'cli')
 {
-	require_once "Console/Getopt.php";
-
-	$cg = new Console_Getopt(); 
-	$args = $cg->readPHPArgv();
-	$params = array('suppress', 'delete');
-	$ret = $cg->getopt($args, 's', $params);
-
-	foreach ($ret[0] as $arg)
-	{
-		// Strip '--' from args:
-		$param = preg_replace('/^--/', '', $arg[0]);
-		if (in_array($param, $params))
-		{
-			$_GET[$param] = ($arg[1] != '') ? $arg[1] : true;
-		}
-	}
-
-	if (isset($ret[1][0]))
-	{
-		$_GET['base'] = $ret[1][0];
-	}
+	$cli = new Thrive_CLI_Helper;
+	$params = $cli->getParams();
+	print_r($params); die();
 }
-
+print_r($_GET);
 if (!isset($_GET['base']))
 {
 	echo "ERROR: A directory to parse is required.\n";
