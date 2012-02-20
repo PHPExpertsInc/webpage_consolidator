@@ -2,7 +2,7 @@ PHAR = webpage_consolidator.phar
 
 SOURCE = \
 	simplehtmldom/simple_html_dom.php \
-	WebPageConsolidator.inc.php \
+	WebpageConsolidator.inc.php \
 	WebpageCache.inc.php \
 	index.php
 

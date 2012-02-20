@@ -1,6 +1,6 @@
 <?php
 
-class WebPageCache extends ArrayObject
+class WebpageCache extends ArrayObject
 {
     const ERROR_MISSING_CACHE = 'Could not find cache for %s';
     const ERROR_CANT_CACHE = 'Could not write cache for %s';

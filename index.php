@@ -1,6 +1,5 @@
 <?php
 require 'thrive/Thrive.php';
-require 'WebPageConsolidator.inc.php';
 
 Thrive::init();
 

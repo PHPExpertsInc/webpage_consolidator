@@ -22,13 +22,13 @@ function rrmdir($dir)
     } 
 } 
 
-interface WebPageConsolidatorI
+interface WebpageConsolidatorI
 {
     public function consolidate($params);
     public function deleteEncodedFiles($basedir);
 }
 
-class WebpageConsolidator implements WebPageConsolidatorI
+class WebpageConsolidator implements WebpageConsolidatorI
 {
 	const STATUS_BLANK_HTML = 101;
 
@@ -148,7 +148,7 @@ class WebpageConsolidator implements WebPageConsolidatorI
 		$postHTML = isset($params['postHTML']) ? $params['postHTML'] : '';
 
         // See if the webpage is already consolidated.
-        $cache = new WebPageCache;
+        $cache = new WebpageCache;
  
 		if (isset($cache[$outputDir]))
         {
