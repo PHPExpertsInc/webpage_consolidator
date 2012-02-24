@@ -35,35 +35,9 @@ class WebpageConsolidator implements WebpageConsolidatorI
 	protected $html_filename;
 	protected $collection;
 
-	private function findWebpageFiles($basedir)
+	protected function findMainHtmlFile()
 	{
-		// Sanity checks.
-		if ($basedir == '')
-		{
-			throw new RuntimeException('Basedir cannot be blank.');
-		}
-
-		$domain = substr($basedir, 0, strrpos($basedir, '_'));
-		//$basedir = $basedir;
-
-		// See if absolute path works
-		if (!file_exists($basedir))
-		{
-			// If not, try the relative path.
-			if (file_exists(getcwd() . '/' . $basedir))
-			{
-				// Change file path.
-				$basedir = getcwd() . '/' . $basedir;
-			}
-			else
-			{
-				throw new RuntimeException('Basedir does not exist: ' . htmlentities($basedir));
-			}
-		}
-
-
 		// Find the main HTML file.
-		$html = file_get_html("$basedir/index.html");
 		$hrefs = $html->find('a');
 		$html_filename = $basedir . '/' . $hrefs[0]->href;
 		//        echo "HTML File name: $html_filename\n"; exit;
@@ -71,6 +45,19 @@ class WebpageConsolidator implements WebpageConsolidatorI
 		//        $html_filename = trim(`$html_filename_cmd`);
 		//echo "HTML file name: $html_filename\n"; exit;
 		$this->html_filename = $html_filename;
+
+
+	}
+	
+	protected function findWebpageFiles($htmlFilename)
+	{
+		// Sanity checks.
+		if (!is_readable($htmlFilename) || !is_file($htmlFilename))
+		{
+			throw new RuntimeException("Cannot open $htmlFilename.");
+		}
+
+		$html = file_get_html($htmlFilename);
 
 		$collection = array();
 		$types = array('ico', 'gif', 'jpg', 'png', 'css', 'js');
@@ -97,9 +84,10 @@ class WebpageConsolidator implements WebpageConsolidatorI
 				// Strip charset info.
 				//        $fres = substr($fres, 0, strpos($fres, '; charset'));
 				$collection[basename($file)] = array('type' => $fres,
-						'filename' => $file,
-						'data' => base64_encode(file_get_contents($file)));
+				                                     'filename' => $file,
+				                                     'data' => base64_encode(file_get_contents($file)));
 			}
+
 			unset($files);
 		}
 
@@ -138,14 +126,9 @@ class WebpageConsolidator implements WebpageConsolidatorI
 		}
 	}
 
-	public function consolidate($params)
+	public function consolidate($htmlFilename, $outputDir, $preHTML = '', $postHTML = '')
 	{
 		if (!isset($params['basedir'])) { throw new LogicException('Must have a basedir'); }
-
-		$basedir = $params['basedir'];
-		$outputDir = isset($params['outputDir']) ? $params['outputDir'] : $basedir;
-		$preHTML = isset($params['preHTML']) ? $params['preHTML'] : '';
-		$postHTML = isset($params['postHTML']) ? $params['postHTML'] : '';
 
 		// See if the webpage is already consolidated.
 		$cache = new WebpageCache;
@@ -155,7 +138,7 @@ class WebpageConsolidator implements WebpageConsolidatorI
 			return $cache[$outputDir];
 		}
 
-		$this->findWebpageFiles($basedir);
+		$this->findWebpageFiles($htmlFilename);
 
 		$html = file_get_html($this->html_filename);
 

@@ -7,38 +7,54 @@ Thrive::init();
 if (php_sapi_name() == 'cli')
 {
 	$cli = new Thrive_CLI_Helper;
-	$params = $cli->getParams();
-	print_r($params); die();
+	$params = $cli->getParams(array('output=', 'delete'));
 }
-print_r($_GET);
-if (!isset($_GET['base']))
+else
 {
-	echo "ERROR: A directory to parse is required.\n";
-	exit;
+	$params = $_GET;
 }
 
-$orig_basedir = $basedir = (isset($argv[1])) ? 
-                            $argv[1] :
-                            filter_var($_GET['base'], FILTER_SANITIZE_STRING);
+if (!isset($params['webpage']) && !isset($params['.extra0']))
+{
+	echo "ERROR: The web page HTML file to be consolidated is required.\n";
+	echo "Try $argv[0] --help for mor information.\n";
+	die(1);
+}
+else
+{
+	$params['webpage'] = $params['.extra0'];
+	unset($params['.extra0']);
+}
+
+$webpage = filter_var($params['webpage'], FILTER_SANITIZE_STRING);
+$basedir = dirname($webpage);
+
 //echo "Basedir: $orig_basedir";
 if (!file_exists($basedir))
 {
-	if (!mkdir($basedir))
-	{
-		throw new RuntimeException('Cannot find or create the basedir: ' . $basedir);
-	}
+	echo "ERROR: Cannot access $basedir: No such directory exists.\n";
+	die(2);
 }
 
-$outputDir = isset($argv[2]) ? $argv[2] : $orig_basedir;
+if (!is_dir($basedir))
+{
+	echo "ERROR: $basedir is not a directory.\n";
+	die(3);
+}
+
+$outputDir = isset($params['output']) ? $params['output'] : $basedir;
 
 $consolidator = new WebpageConsolidator;
-$preHTML = '<h3 style="text-align: center; padding-bottom: 5px; margin-bottom: 5px; border-bottom: black 2px solid; width: 100%; height: 1em; background: white; text-transform: none">ORIGINAL URL: <a href="' . htmlspecialchars($originalURL) . '">' . htmlspecialchars($originalURL) . '</a></h3>';
-$html = $consolidator->consolidate(array('basedir' => $basedir,
-                                         'outputDir' => $outputDir,
-                                         'preHTML' => $preHTML));
 
+$preHTML = '<h2>Consolidated by <strong><a href="http://www.phpexperts.pro/">PHPPro\'s Web Page Consolidator</a></strong>.</h3>';
+if (isset($params['orig-url']))
+{
+	$preHTML .= '<h3 style="text-align: center; padding-bottom: 5px; margin-bottom: 5px; border-bottom: black 2px solid; width: 100%; height: 1em; background: white; text-transform: none">ORIGINAL URL: <a href="' . htmlspecialchars($params['orig-url']) . '">' . htmlspecialchars($params['orig-url']) . '</a></h3>';
+}
 
-if (isset($_GET['delete']))
+$html = $consolidator->consolidate($webpage, $outputDir, $preHTML);
+
+if (isset($params['delete']) && $params['delete'] == true)
 {
 	$consolidator->deleteEncodedFiles($basedir);
 }
