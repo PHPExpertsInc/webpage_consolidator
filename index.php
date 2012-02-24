@@ -46,10 +46,10 @@ $outputDir = isset($params['output']) ? $params['output'] : $basedir;
 
 $consolidator = new WebpageConsolidator;
 
-$preHTML = '<h2>Consolidated by <strong><a href="http://www.phpexperts.pro/">PHPPro\'s Web Page Consolidator</a></strong>.</h3>';
+$preHTML = '';
 if (isset($params['orig-url']))
 {
-	$preHTML .= '<h3 style="text-align: center; padding-bottom: 5px; margin-bottom: 5px; border-bottom: black 2px solid; width: 100%; height: 1em; background: white; text-transform: none">ORIGINAL URL: <a href="' . htmlspecialchars($params['orig-url']) . '">' . htmlspecialchars($params['orig-url']) . '</a></h3>';
+	$preHTML = '<h3 style="text-align: center; padding-bottom: 5px; margin-bottom: 5px; border-bottom: black 2px solid; width: 100%; height: 1em; background: white; text-transform: none">ORIGINAL URL: <a href="' . htmlspecialchars($params['orig-url']) . '">' . htmlspecialchars($params['orig-url']) . '</a></h3>';
 }
 
 $html = $consolidator->consolidate($webpage, $outputDir, $preHTML);

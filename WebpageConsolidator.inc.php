@@ -42,6 +42,9 @@ class WebpageConsolidator
 			return $cache[$outputDir];
 		}
 
+		$preHTML = $this->packagePreHTML($preHTML);
+		$postHTML = $this->packagePostHTML($postHTML);
+
 		$this->findWebpageFiles($basedir);
 
 		$html = file_get_html($htmlFilename);
@@ -62,6 +65,30 @@ class WebpageConsolidator
 		// Cache output.
 		$cache[$outputDir] = $output;
 
+		return $output;
+	}
+
+	protected function packagePreHTML($preHTML)
+	{
+		$output = <<<HTML
+<html>
+	<head>
+		<meta http-equiv="content-type" content="text/html;charset=utf-8"/>
+	</head>
+	<body>
+		<h2>Consolidated by <strong><a href="http://www.phpexperts.pro/">PHPPro\'s Web Page Consolidator</a></strong>.</h3>
+		$preHTML
+HTML;
+		return $output;
+	}
+
+	protected function packagePostHTML($postHTML)
+	{
+		$output = <<<HTML
+		$postHTML
+	</body>
+</html>
+HTML;
 		return $output;
 	}
 
