@@ -50,7 +50,6 @@ class WebpageCache extends ArrayObject
 	{
 		// HTML pages are gzipped files.
 		$filename = $this->getCacheFilename($offset);
-
 		if (($fh = fopen($filename, 'w')) === false)
 		{
 			throw new RuntimeException(sprintf(self::ERROR_CANT_CACHE, $offset));

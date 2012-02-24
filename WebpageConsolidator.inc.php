@@ -37,9 +37,11 @@ class WebpageConsolidator
 		// See if the webpage is already consolidated.
 		$cache = new WebpageCache($parentDir);
 
-		if (isset($cache[$outputDir]))
+		$cacheKey = basename($outputDir);
+		
+		if (isset($cache[$cacheKey]))
 		{
-			return $cache[$outputDir];
+			return $cache[$cacheKey];
 		}
 
 		$preHTML = $this->packagePreHTML($preHTML);
@@ -63,7 +65,7 @@ class WebpageConsolidator
 		}
 
 		// Cache output.
-		$cache[$outputDir] = $output;
+		$cache[$cacheKey] = $output;
 
 		return $output;
 	}

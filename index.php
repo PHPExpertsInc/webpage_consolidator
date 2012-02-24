@@ -26,8 +26,8 @@ else
 	unset($params['.extra0']);
 }
 
-$webpage = filter_var($params['webpage'], FILTER_SANITIZE_STRING);
-$basedir = dirname($webpage);
+$webpage = realpath(filter_var($params['webpage'], FILTER_SANITIZE_STRING));
+$basedir = realpath(dirname($webpage));
 
 //echo "Basedir: $orig_basedir";
 if (!file_exists($basedir))
@@ -57,10 +57,5 @@ $html = $consolidator->consolidate($webpage, $outputDir, $preHTML);
 if (isset($params['delete']) && $params['delete'] == true)
 {
 	$consolidator->deleteEncodedFiles($basedir);
-}
-
-if (!isset($argv[1]) && !isset($_GET['suppress']))
-{
-	echo $html;
 }
 
