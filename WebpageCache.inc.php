@@ -6,6 +6,17 @@ class WebpageCache extends ArrayObject
 	const ERROR_CANT_CACHE = 'Could not write cache for %s';
 
 	private $cacheDir = '.';
+
+	public function __construct($cacheDir)
+	{
+		if (!is_dir($cacheDir) || !is_writable($cacheDir))
+		{
+			throw new RuntimeException("Cannot open $cacheDir for writing.");
+		}
+
+		$this->cacheDir = $cacheDir;
+	}
+
 	private function getCacheFilename($offset)
 	{
 		return $this->cacheDir . '/' . $offset . '.htmlz';
