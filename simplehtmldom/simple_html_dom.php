@@ -33,10 +33,15 @@ define('HDOM_INFO_ENDSPACE',7);
 // helper functions
 // -----------------------------------------------------------------------------
 // get html dom form file
-function file_get_html() {
+function file_get_html($file) {
     $dom = new simple_html_dom;
-    $args = func_get_args();
-    $dom->load(call_user_func_array('file_get_contents', $args), true);
+    if (!file_exists($file))
+    {
+		throw new RuntimeException("Cannot find file $file");
+    }
+    $contents = file_get_contents($file);
+    //print_r($contents);
+    $dom->load($contents, true);
     return $dom;
 }
 
