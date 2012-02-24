@@ -22,42 +22,70 @@ function rrmdir($dir)
 	} 
 } 
 
-interface WebpageConsolidatorI
-{
-	public function consolidate($params);
-	public function deleteEncodedFiles($basedir);
-}
-
-class WebpageConsolidator implements WebpageConsolidatorI
+class WebpageConsolidator
 {
 	const STATUS_BLANK_HTML = 101;
 
-	protected $html_filename;
 	protected $collection;
 
-	protected function findMainHtmlFile()
+	public function consolidate($htmlFilename, $outputDir, $preHTML = '', $postHTML = '')
+	{
+		if (!is_readable($htmlFilename)) { throw new RuntimeException("Cannot open or read $htmlFilename"); }
+
+		$basedir = dirname($htmlFilename);
+		$parentDir = realpath($basedir . '/../');
+		// See if the webpage is already consolidated.
+		$cache = new WebpageCache($parentDir);
+
+		if (isset($cache[$outputDir]))
+		{
+			return $cache[$outputDir];
+		}
+
+		$this->findWebpageFiles($basedir);
+
+		$html = file_get_html($htmlFilename);
+
+		// Encode stylesheets.
+		$this->encodeWebpageFiles($html, 'link', 'href');
+
+		// Encode images.
+		$this->encodeWebpageFiles($html, 'img', 'src');
+
+		$output = $preHTML . $html->save() . $postHTML;
+
+		if ($output == "$preHTML$postHTML")
+		{
+			return self::STATUS_BLANK_HTML;
+		}
+
+		// Cache output.
+		$cache[$outputDir] = $output;
+
+		return $output;
+	}
+
+	protected function findMainHtmlFile(Simple_HTML_Dom $html, $basedir)
 	{
 		// Find the main HTML file.
 		$hrefs = $html->find('a');
-		$html_filename = $basedir . '/' . $hrefs[0]->href;
+		$htmlFilename = $basedir . '/' . $hrefs[0]->href;
 		//        echo "HTML File name: $html_filename\n"; exit;
 		//echo "HTML file name cmd: $html_filename_cmd\n";
 		//        $html_filename = trim(`$html_filename_cmd`);
 		//echo "HTML file name: $html_filename\n"; exit;
-		$this->html_filename = $html_filename;
+		return $htmlFilename;
 
 
 	}
 	
-	protected function findWebpageFiles($htmlFilename)
+	protected function findWebpageFiles($basedir)
 	{
 		// Sanity checks.
-		if (!is_readable($htmlFilename) || !is_file($htmlFilename))
+		if (!is_readable($basedir) || !is_dir($basedir))
 		{
-			throw new RuntimeException("Cannot open $htmlFilename.");
+			throw new RuntimeException("Cannot open $basedir.");
 		}
-
-		$html = file_get_html($htmlFilename);
 
 		$collection = array();
 		$types = array('ico', 'gif', 'jpg', 'png', 'css', 'js');
@@ -126,40 +154,6 @@ class WebpageConsolidator implements WebpageConsolidatorI
 		}
 	}
 
-	public function consolidate($htmlFilename, $outputDir, $preHTML = '', $postHTML = '')
-	{
-		if (!isset($params['basedir'])) { throw new LogicException('Must have a basedir'); }
-
-		// See if the webpage is already consolidated.
-		$cache = new WebpageCache;
-
-		if (isset($cache[$outputDir]))
-		{
-			return $cache[$outputDir];
-		}
-
-		$this->findWebpageFiles($htmlFilename);
-
-		$html = file_get_html($this->html_filename);
-
-		// Encode stylesheets.
-		$this->encodeWebpageFiles($html, 'link', 'href');
-
-		// Encode images.
-		$this->encodeWebpageFiles($html, 'img', 'src');
-
-		$output = $preHTML . $html->save() . $postHTML;
-		if ($output == "$preHTML$postHTML")
-		{
-			return self::STATUS_BLANK_HTML;
-		}
-
-		// Cache output.
-		$cache[$outputDir] = $output;
-
-		return $output;
-	}
-
 	public function deleteEncodedFiles($basedir)
 	{
 		if (empty($this->collection))
@@ -171,9 +165,11 @@ class WebpageConsolidator implements WebpageConsolidatorI
 		unlink("$basedir/cookies.txt");
 		unlink("$basedir/hts-log.txt");
 
+		// FIXME: I'm not sure how to rectify this...
 		// If there is no HTML file, that means it's probably an image-only
 		// web page, so we should bail now.
-		if (is_null($this->html_filename))
+		//if (is_null($this->html_filename))
+		if (true)
 		{
 			return;
 		}
