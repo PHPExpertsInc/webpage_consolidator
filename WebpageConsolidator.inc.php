@@ -122,7 +122,7 @@ class WebpageConsolidator
 		$this->collection = $collection;
 	}
 
-	private function encodeWebpageFiles(Simple_HTML_Dom $html, $cssSelector, $destAttrib)
+	protected function encodeWebpageFiles(Simple_HTML_Dom $html, $cssSelector, $destAttrib)
 	{
 		$ret = $html->find($cssSelector);
 		foreach ($ret as $r)
