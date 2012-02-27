@@ -15,7 +15,8 @@ $(PHAR): $(SOURCE) clean package
 	@cd cert; phar-generate-cert
 
 	echo "3. Creating $(PHAR) phar..."
-	@phar-build --phar $(PHAR)
+	@phar-build --phar $(PHAR) --stub=stub.php
+	@chmod -vf 0755 webpage_consolidator.phar
 
 package:
 	@echo "1. Packaging source files..."

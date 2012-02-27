@@ -1,3 +1,4 @@
+#!/bin/env php
 <?php
 require 'thrive/Thrive.php';
 
